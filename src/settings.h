@@ -2,6 +2,7 @@
 
 /* --- DEBUG --- */
 constexpr bool SHOW_DEBUG_MENU = true; //Flag to display debug menu on screen
+constexpr bool SHOW_HITBOXES = false; //Flag to draw entity hitboxes
 
 /* --- GRAPHICS --- */
 constexpr int RAW_TILE_SIZE = 32; //Side length of raw tile sprite in pixels
@@ -31,7 +32,9 @@ constexpr int minimapPlayerRadius = MINIMAP_SCALE * 2;
 
 /* --- ENTITY GEN --- */
 constexpr int TREE_CHANCE = 12; //Chance a tree will spawn at an given tile, expressed as odds ("1 in _")
-constexpr int TREE_MAX = 1350; //Maximum number of trees allowed to generate
+constexpr int TREE_MAX = 1350; //Number of trees to generate
+constexpr int ROCK_CHANCE = 25; //Chacne a rock will spawn at any given tile, expressed as odds ("1 in _")
+constexpr int ROCK_MAX = 500; // Number of rocks to generate
 
 /* --- PLAYER  --- */
 constexpr int WALK_SPEED = 5; //Base player walking speed

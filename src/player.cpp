@@ -176,4 +176,8 @@ void Player::draw(Map& map, Assets& assets)
             if (spriteState == SpriteState::Walk2) {DrawTexture(*assets.get("lWalk2"), screenX, screenY, WHITE);}
             break;
     }
+
+    if (SHOW_HITBOXES) {
+        DrawRectangle(hitBox.x, hitBox.y, hitBox.width, hitBox.height, GREEN);
+    }
 }

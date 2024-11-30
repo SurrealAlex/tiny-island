@@ -22,6 +22,10 @@ class Assets {
         Image _treeSprite;
         Texture2D treeSprite;
 
+        //Rock assets
+        Image _rockSprite;
+        Texture2D rockSprite;
+
         //Asset map
         std::map<std::string, Texture2D*> assetList;
 

@@ -23,12 +23,11 @@ void Game::run()
     gameState = GameState::Playing;
     Assets assets;
     Map map;
-    EntityHandler eh;
-    Minimap minimap;
+    EntityHandler entities;
 
     //Init game
     map.generate();
-    eh.generateEntities(map);
+    entities.generateEntities(map);
 
     //Game loop
     while (!WindowShouldClose())
@@ -36,17 +35,16 @@ void Game::run()
         if (gameState == GameState::Playing)
         {
             //Listen for events
-            eh.events(map);
-            minimap.events();
+            entities.events(map);
 
             //Update objects
-            eh.update(map);
+            entities.update(map);
 
             //Render
             BeginDrawing();
                 ClearBackground(BLACK);
                 map.draw(assets);
-                eh.draw(map, assets);
+                entities.draw(map, assets);
             EndDrawing();
         }
     }
