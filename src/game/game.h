@@ -1,5 +1,5 @@
 #pragma once
-#include "map.h"
+#include "../map/map.h"
 
 enum class GameState {MainMenu, Playing, Paused};
 

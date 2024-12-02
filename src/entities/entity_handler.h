@@ -1,9 +1,9 @@
 #include <vector>
 #include <memory>
-#include "player.h"
-#include "tree.h"
-#include "rock.h"
-#include "minimap.h"
+#include "mobs/player.h"
+#include "world-objects/tree.h"
+#include "world-objects/rock.h"
+#include "../gui/minimap.h"
 
 class EntityHandler {
     private:
@@ -17,6 +17,7 @@ class EntityHandler {
     public:
         void generateEntities(Map& map);
         void checkEntityCollisions();
+        void checkForInteractableEntity();
 
         void events(Map& map);
         void update(Map& map);

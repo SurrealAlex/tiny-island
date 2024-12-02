@@ -1,10 +1,11 @@
 #include "map.h"
-#include "utilities.h"
-#include "game.h"
+#include "utils_map.h"
+#include "../utils/utils_general.h"
+#include "../game/game.h"
 #include <vector>
 #include <iostream>
 #include <intrin.h>
-#include "assets.h"
+#include "../assets/assets.h"
 
 Map::Map()
 {
@@ -13,31 +14,7 @@ Map::Map()
     size = cols * rows;
     offsetX = 0;
     offsetY = 0;
-}
-
-std::pair<int, int> Map::selectLandingTile()
-{
-    while (true)
-    {
-        for (int col = 0; col < cols; col++)
-        {
-            for (int row = 0; row < rows; row++)
-            {
-                if (tileMap[{col, row}].state != TileState::Sand) {continue;}
-                if (Utilities::neighborsOfType(tileMap, {col, row}, TileState::Grass) < 3) {continue;}
-                if (Utilities::getRandomInt(1, size) != size) {continue;}
-                return {col, row};
-            }
-        }
-    }
-}
-
-void Map::centerCameraOnTile(std::pair<int, int> coords)
-{
-    int cameraOffset = (tileSize * (CAMERA_COLUMNS / 2));
-    std::pair<int, int> tileOffsetPos = Utilities::getTileOffsetPosition(coords);
-    setOffsetX(tileOffsetPos.first + cameraOffset);
-    setOffsetY(tileOffsetPos.second + cameraOffset);
+    currentWindowSize = std::make_pair(GetScreenWidth(), GetScreenHeight());
 }
 
 void Map::generate() // Generates the tilemap
@@ -57,6 +34,7 @@ void Map::generate() // Generates the tilemap
         }
     }
 
+
     //Generates the island randomly from the center land tile
     std::cout << "TINY_ISLAND: Generating island...\n";
     int landCount = 1;
@@ -71,11 +49,11 @@ void Map::generate() // Generates the tilemap
                     continue;
                 }
 
-                if (Utilities::tileWithinNthPerimeter(cols, rows, {col, row}, 3)) {
+                if (MapUtils::tileWithinNthPerimeter(*this, {col, row}, 6)) {
                     continue;
                 }
 
-                std::pair<int, int> nextNeighborCoords = Utilities::getRandomOrthogonalNeighborCoords({col, row});
+                TileCoords nextNeighborCoords = MapUtils::getRandomOrthogonalNeighborCoords({col, row});
 
                 if (tileMap[nextNeighborCoords].state == TileState::Grass) {
                     continue;
@@ -92,8 +70,8 @@ void Map::generate() // Generates the tilemap
     int lakeCount = 0;
     while (lakeCount < NUM_OF_LAKES)
     {
-        int possibleCol = Utilities::getRandomInt(0, cols - 1);
-        int possibleRow = Utilities::getRandomInt(0, rows - 1);
+        int possibleCol = GeneralUtils::getRandomInt(0, cols - 1);
+        int possibleRow = GeneralUtils::getRandomInt(0, rows - 1);
         
         if (tileMap[{possibleCol, possibleRow}].state == TileState::Grass)
         {
@@ -115,7 +93,7 @@ void Map::generate() // Generates the tilemap
                     continue;
                 }
 
-                std::pair<int, int> nextNeighborCoords = Utilities::getRandomOrthogonalNeighborCoords({col, row});
+                TileCoords nextNeighborCoords = MapUtils::getRandomOrthogonalNeighborCoords({col, row});
                 
                 if (tileMap[nextNeighborCoords].state == TileState::Lake || tileMap[nextNeighborCoords].state == TileState::Water) {
                     continue;
@@ -137,30 +115,30 @@ void Map::generate() // Generates the tilemap
                 continue;
             }
 
-            if (Utilities::neighborsOfType(tileMap, {col, row}, TileState::Water) > 0 ||
-                Utilities::neighborsOfType(tileMap, {col, row}, TileState::Lake) > 0) {
+            if (MapUtils::neighborsOfType(*this, {col, row}, TileState::Water) > 0 ||
+                MapUtils::neighborsOfType(*this, {col, row}, TileState::Lake) > 0) {
                 tileMap[{col, row}].elevation = 1;
                 continue;
             }
 
-            tileMap[{col, row}].elevation = Utilities::getRandomInt(2, 7);
+            tileMap[{col, row}].elevation = GeneralUtils::getRandomInt(2, 7);
         }
     }
 
     //Places river seeds on the island
     std::cout << "TINY_ISLAND: Initializing rivers...\n";
     int riverCount = 0;
-    std::vector<std::pair<int, int>> riverSeedCoords;
+    std::vector<TileCoords> riverSeedCoords;
     while (riverCount < NUM_OF_RIVERS)
     {
-        int possibleCol = Utilities::getRandomInt(0, cols - 1);
-        int possibleRow = Utilities::getRandomInt(0, cols - 1);
+        int possibleCol = GeneralUtils::getRandomInt(0, cols - 1);
+        int possibleRow = GeneralUtils::getRandomInt(0, cols - 1);
 
         if (tileMap[{possibleCol, possibleRow}].state != TileState::Grass) {
             continue;
         }
 
-        if (Utilities::neighborsOfType(tileMap, {possibleCol, possibleRow}, TileState::Grass) == 8) {
+        if (MapUtils::neighborsOfType(*this, {possibleCol, possibleRow}, TileState::Grass) == 8) {
             tileMap[{possibleCol, possibleRow}] = {TileState::River, 8};
             riverSeedCoords.push_back({possibleCol, possibleRow});
             riverCount++;
@@ -172,14 +150,14 @@ void Map::generate() // Generates the tilemap
     for (int riv = 0; riv < (int)riverSeedCoords.size(); riv++)
     {
         int currentElevation = 8;
-        std::pair<int, int> currentCoords = riverSeedCoords[riv];
+        TileCoords currentCoords = riverSeedCoords[riv];
         while (currentElevation > 0)
         {
-            std::pair<int, int> neighborCoords[4] = {
-                Utilities::getNeighborCoords(currentCoords, Direction::Up),
-                Utilities::getNeighborCoords(currentCoords, Direction::Down),
-                Utilities::getNeighborCoords(currentCoords, Direction::Left),
-                Utilities::getNeighborCoords(currentCoords, Direction::Right)
+            TileCoords neighborCoords[4] = {
+                MapUtils::getNeighborCoords(currentCoords, Direction::North),
+                MapUtils::getNeighborCoords(currentCoords, Direction::South),
+                MapUtils::getNeighborCoords(currentCoords, Direction::West),
+                MapUtils::getNeighborCoords(currentCoords, Direction::East)
             };
 
             int neighborElevations[4] = {
@@ -189,7 +167,7 @@ void Map::generate() // Generates the tilemap
                 tileMap[neighborCoords[3]].elevation
             };
 
-            currentElevation = Utilities::findLowestInt(neighborElevations, 4);
+            currentElevation = GeneralUtils::findLowestInt(neighborElevations, 4);
 
             for (int i = 0; i < 4; i++)
             {
@@ -224,11 +202,11 @@ void Map::generate() // Generates the tilemap
         {
             for (int row = 0; row < rows; row++)
             {
-                if (tileMap[{col, row}].state == TileState::Grass && Utilities::neighborsOfType(tileMap, {col, row}, TileState::Water) > 5) {
+                if (tileMap[{col, row}].state == TileState::Grass && MapUtils::neighborsOfType(*this, {col, row}, TileState::Water) > 5) {
                     tileMap[{col, row}].state = TileState::Water;
                 }
                 
-                if (tileMap[{col, row}].state == TileState::Water && Utilities::neighborsOfType(tileMap, {col, row}, TileState::Grass) > 6)
+                if (tileMap[{col, row}].state == TileState::Water && MapUtils::neighborsOfType(*this, {col, row}, TileState::Grass) > 6)
                 {
                     tileMap[{col, row}].state = TileState::Grass;
                 }
@@ -247,7 +225,7 @@ void Map::generate() // Generates the tilemap
                 continue;
             }
 
-            if (Utilities::neighborsOfType(tileMap, {col, row}, TileState::Water) > 0) {
+            if (MapUtils::neighborsOfType(*this, {col, row}, TileState::Water) > 0) {
                 tileMap[{col, row}].state = TileState::Sand;
             }
 
@@ -255,7 +233,7 @@ void Map::generate() // Generates the tilemap
     }
 
     std::cout << "TINY_ISLAND: Map generated!\n";
-    centerCameraOnTile(selectLandingTile());
+    MapUtils::centerCameraOnTile(*this, MapUtils::selectLandingTile(*this));
 }
 
 int Map::getOffsetX()
@@ -288,20 +266,17 @@ void Map::adjustOffsetY(int y)
     offsetY += y;
 }
 
-TileState Map::getTileAtWorldCoords(int x, int y)
+
+void Map::update()
 {
-    int xApprox = x / tileSize;
-    int yApprox = y / tileSize;
-
-    return tileMap[{xApprox, yApprox}].state;
-}
-
-std::pair<int, int> Map::getTileCoordsAtWorldCoords(int x, int y)
-{
-    int xApprox = x / tileSize;
-    int yApprox = y / tileSize;
-
-    return std::make_pair(xApprox, yApprox);
+    if (IsWindowResized()) {
+        std::cout << "OFFSET BEFORE: " << offsetX << ", " << offsetY << std::endl;
+        offsetX += (GetScreenWidth() / 2) - (currentWindowSize.first / 2);
+        offsetY += (GetScreenHeight() / 2) - (currentWindowSize.second / 2);
+        currentWindowSize.first = GetScreenWidth();
+        currentWindowSize.second = GetScreenHeight();
+        std::cout << "OFFSET AFTER: " << offsetX << ", " << offsetY << std::endl;
+    }
 }
 
 void Map::draw(Assets &assets)
@@ -317,11 +292,11 @@ void Map::draw(Assets &assets)
             y = row * tileSize + offsetY;
 
             bool render = true;
-            std::pair<int, int> tileOffsetPos = Utilities::getTileOffsetPosition({col, row});
-            if (tileOffsetPos.first > offsetX + tileSize) {render = false;}
-            if (tileOffsetPos.first < offsetX - screenWidth) {render = false;}
-            if (tileOffsetPos.second > offsetY + tileSize) {render = false;}
-            if (tileOffsetPos.second < offsetY - screenHeight) {render = false;}
+            WorldCoords tileOffsetPos = MapUtils::getTileWorldCoords({col, row});
+            if (tileOffsetPos.x > offsetX + tileSize) {render = false;}
+            if (tileOffsetPos.x < offsetX - GetScreenWidth()) {render = false;}
+            if (tileOffsetPos.y > offsetY + tileSize) {render = false;}
+            if (tileOffsetPos.y < offsetY - GetScreenHeight()) {render = false;}
             if (!render) {continue;}
 
             switch(tileMap[{col, row}].state)

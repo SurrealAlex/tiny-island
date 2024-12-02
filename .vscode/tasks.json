@@ -17,6 +17,14 @@
                     "RAYLIB_PATH=C:/raylib/raylib",
                     "PROJECT_NAME=${fileBasenameNoExtension}",
                     "OBJS=src/*.cpp",
+                    "OBJS+=src/assets/*.cpp",
+                    "OBJS+=src/entities/*.cpp",
+                    "OBJS+=src/entities/mobs/*.cpp",
+                    "OBJS+=src/entities/world-objects/*.cpp",
+                    "OBJS+=src/game/*.cpp",
+                    "OBJS+=src/gui/*.cpp",
+                    "OBJS+=src/map/*.cpp",
+                    "OBJS+=src/utils/*.cpp",
                     "BUILD_MODE=DEBUG"
                 ]
             },

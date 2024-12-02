@@ -1,16 +1,20 @@
 #pragma once
-#include "map.h"
-#include "assets.h"
+#include "../map/map.h"
+#include "../assets/assets.h"
 #include <vector>
 #include <raylib.h>
 
-enum class Facing {Up, Left, Down, Right};
+struct ScreenCoords {
+    float x, y;
+};
 
 class Entity {
     public:
+        std::string name;
         float width, height;
         int worldX, worldY;
         float screenX, screenY;
+        ScreenCoords centerPoint;
         int zIndex;
         Rectangle hitBox;
 

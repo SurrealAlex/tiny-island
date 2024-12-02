@@ -1,7 +1,11 @@
 #include "minimap.h"
+#include "../map/utils_map.h"
 
 void Minimap::events()
 {
+    if (IsWindowResized()) {
+        startingX = GetScreenWidth() - (MAP_COLUMNS * MINIMAP_SCALE) + MINIMAP_OFFSET_X;
+    }
     if (IsKeyPressed(KEY_M)) {
         if (showing) {showing = false;}
         else {showing = true;}
@@ -16,7 +20,7 @@ void Minimap::draw(Map &map, Player& player)
 
     int x = startingX;
     int y = startingY;
-    std::pair<int, int> playerLocation = map.getTileCoordsAtWorldCoords(player.worldX, player.worldY);
+    TileCoords playerLocation = MapUtils::getTileCoordsAtWorldCoords(map, {player.worldX, player.worldY});
 
     for (int col = 0; col < map.cols; col++)
     {
@@ -43,7 +47,7 @@ void Minimap::draw(Map &map, Player& player)
         y = startingY;
     };
 
-    int playerX = startingX + (playerLocation.first * MINIMAP_SCALE);
-    int playerY = startingY + (playerLocation.second * MINIMAP_SCALE);
+    int playerX = startingX + (playerLocation.col * MINIMAP_SCALE);
+    int playerY = startingY + (playerLocation.row * MINIMAP_SCALE);
     DrawCircle(playerX, playerY, minimapPlayerRadius, RED);
 }

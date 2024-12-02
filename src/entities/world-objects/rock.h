@@ -1,7 +1,7 @@
 #pragma once
-#include "entity.h"
-#include "assets.h"
-#include "map.h"
+#include "../entity.h"
+#include "../../assets/assets.h"
+#include "../../map/map.h"
 
 class Rock : public Entity {
     public:

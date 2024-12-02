@@ -1,8 +1,11 @@
 #include "entity_handler.h"
-#include "utilities.h"
-#include "map.h"
+#include "../utils/utilities.h"
+#include "../utils/utils_general.h"
+#include "../map/utils_map.h"
+#include "../map/map.h"
 #include <iostream>
 #include <algorithm>
+#include <math.h>
 
 void EntityHandler::generateEntities(Map &map)
 {
@@ -12,14 +15,14 @@ void EntityHandler::generateEntities(Map &map)
     int treeCount = 0;
     while (treeCount < TREE_MAX)
     {
-        int possibleCol = Utilities::getRandomInt(0, MAP_COLUMNS - 1);
-        int possibleRow = Utilities::getRandomInt(0, MAP_ROWS - 1);
+        int possibleCol = GeneralUtils::getRandomInt(0, MAP_COLUMNS - 1);
+        int possibleRow = GeneralUtils::getRandomInt(0, MAP_ROWS - 1);
 
         if (map.tileMap[{possibleCol, possibleRow}].state != TileState::Grass) {
             continue;
         }
 
-        if (Utilities::neighborsOfType(map.tileMap, {possibleCol, possibleRow}, TileState::Sand) > 0) {
+        if (MapUtils::neighborsOfType(map, {possibleCol, possibleRow}, TileState::Sand) > 0) {
             continue;
         }
 
@@ -32,10 +35,10 @@ void EntityHandler::generateEntities(Map &map)
 
         if (alreadyOccupied) {continue;}
 
-        int possibleX = (possibleCol * tileSize) + Utilities::getRandomInt(-tileSize / 2, tileSize / 2) + tileSize;
-        int possibleY = (possibleRow * tileSize) + Utilities::getRandomInt(-tileSize / 2, tileSize / 2) + tileSize;
+        int possibleX = (possibleCol * tileSize) + GeneralUtils::getRandomInt(-tileSize / 3, tileSize / 3) + tileSize;
+        int possibleY = (possibleRow * tileSize) + GeneralUtils::getRandomInt(-tileSize / 3, tileSize / 3) + tileSize;
 
-        if (map.getTileAtWorldCoords(possibleX, possibleY) == TileState::Grass) {
+        if (MapUtils::getTileAtWorldCoords(map, {possibleX, possibleY}).state == TileState::Grass) {
             std::unique_ptr<Tree> thisTree = std::make_unique<Tree>(possibleX - tileSize, possibleY- tileSize); 
             trees.push_back(std::move(thisTree));
             treeCount++;
@@ -43,14 +46,13 @@ void EntityHandler::generateEntities(Map &map)
             if (treeCount >= TREE_MAX) {break;}
         }
     }
-    std::cout << "TINY_ISLAND: Number of trees generated: " << trees.size() <<std::endl;
 
     std::cout << "TINY_ISLAND: Generating rocks..." << std::endl;
     int rockCount = 0;
     while (rockCount < ROCK_MAX) 
     {
-        int possibleCol = Utilities::getRandomInt(0, MAP_COLUMNS - 1);
-        int possibleRow = Utilities::getRandomInt(0, MAP_ROWS - 1);
+        int possibleCol = GeneralUtils::getRandomInt(0, MAP_COLUMNS - 1);
+        int possibleRow = GeneralUtils::getRandomInt(0, MAP_ROWS - 1);
 
         if (map.tileMap[{possibleCol, possibleRow}].state != TileState::Grass) {
             continue;
@@ -64,20 +66,22 @@ void EntityHandler::generateEntities(Map &map)
 
         if (alreadyOccupied) {continue;}
 
-        int possibleX = (possibleCol * tileSize) + Utilities::getRandomInt(-tileSize / 2, tileSize / 2) + tileSize;
-        int possibleY = (possibleRow * tileSize) + Utilities::getRandomInt(-tileSize / 2, tileSize / 2) + tileSize;
+        int possibleX = (possibleCol * tileSize) + tileSize;
+        int possibleY = (possibleRow * tileSize) + tileSize;
         std::unique_ptr<Rock> thisRock = std::make_unique<Rock>(possibleX - tileSize, possibleY- tileSize); 
         rocks.push_back(std::move(thisRock));
         rockCount++;
         occupiedTiles.push_back({possibleCol, possibleRow});
         if (rockCount >= ROCK_MAX) {break;}
     }
-    }
+
+}
 
 
 void EntityHandler::checkEntityCollisions()
 {
-    for (const auto& entity : visibleEntities) {
+    for (const auto& entity : visibleEntities) 
+    {
         if (dynamic_cast<Player*>(entity)) {
             continue;
         }
@@ -104,6 +108,49 @@ void EntityHandler::checkEntityCollisions()
     }
 }
 
+void EntityHandler::checkForInteractableEntity()
+{
+    for (const auto& entity : visibleEntities)
+    {
+        if (dynamic_cast<Player*>(entity)) {
+            continue;
+        }
+
+        int deltaX = entity->centerPoint.x - player->centerPoint.x;
+        int deltaY = entity->centerPoint.y - player->centerPoint.y;
+        float angleRadians = atan2(deltaY, deltaX);
+        float angleDegrees = angleRadians * (180 / 3.1415926f);
+
+        if (!((deltaX < NDT && deltaX > -NDT) && (deltaY < NDT && deltaY > -NDT))) {
+            continue;
+        }
+
+        switch(player->isFacing)
+        {
+            case Facing::North:
+                if (angleDegrees < -45 && angleDegrees > -135) {
+                    player->interactableEntity = entity;
+                }
+                break;
+            case Facing::East:
+                if (angleDegrees > -45 && angleDegrees < 45) {
+                    player->interactableEntity = entity;
+                }
+                break;
+            case Facing::South:
+                if (angleDegrees > 45 && angleDegrees < 135) {
+                    player->interactableEntity = entity;
+                }
+                break;
+            case Facing::West:
+                if (angleDegrees > 135 || angleDegrees < -135) {
+                    player->interactableEntity = entity;
+                }
+        }
+        break;
+    }
+}
+
 void EntityHandler::events(Map &map)
 {
     minimap.events();
@@ -118,6 +165,7 @@ void EntityHandler::update(Map &map)
 {
     visibleEntities.clear();
     visibleEntities.push_back(std::move(player.get()));
+    player->interactableEntity = nullptr;
 
     for (const auto& tree : trees)
     {
@@ -135,6 +183,7 @@ void EntityHandler::update(Map &map)
         }
     }
 
+    checkForInteractableEntity();
     player->update(map);
 
     std::sort(visibleEntities.begin(), visibleEntities.end(), [](const Entity* a, Entity* b) {

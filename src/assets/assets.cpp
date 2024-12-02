@@ -1,5 +1,5 @@
 #include "assets.h"
-#include "settings.h"
+#include "../settings.h"
 
 Assets::Assets()
 {
