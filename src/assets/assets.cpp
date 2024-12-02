@@ -1,5 +1,4 @@
 #include "assets.h"
-#include "../settings.h"
 
 Assets::Assets()
 {
@@ -132,6 +131,6 @@ Texture2D* Assets::get(std::string assetName)
     if (it != assetList.end()) {
         return it->second;
     } else {
-        return nullptr; // or handle error appropriately
+        return nullptr;
     }
 }

@@ -2,7 +2,6 @@
 #include "../../settings.h"
 #include <raylib.h>
 #include "../../map/map.h"
-#include "../../utils/utilities.h"
 
 Tree::Tree(int wrldX, int wrldY)
 {

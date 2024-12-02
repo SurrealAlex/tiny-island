@@ -1,4 +1,5 @@
 #pragma once
+
 #include "../entity.h"
 #include "../../assets/assets.h"
 #include "../../map/map.h"

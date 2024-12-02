@@ -1,6 +1,5 @@
 #include "entity_handler.h"
-#include "../utils/utilities.h"
-#include "../utils/utils_general.h"
+#include "../utils/math_utils.h"
 #include "../map/utils_map.h"
 #include "../map/map.h"
 #include <iostream>
@@ -15,8 +14,8 @@ void EntityHandler::generateEntities(Map &map)
     int treeCount = 0;
     while (treeCount < TREE_MAX)
     {
-        int possibleCol = GeneralUtils::getRandomInt(0, MAP_COLUMNS - 1);
-        int possibleRow = GeneralUtils::getRandomInt(0, MAP_ROWS - 1);
+        int possibleCol = MathUtils::getRandomInt(0, MAP_COLUMNS - 1);
+        int possibleRow = MathUtils::getRandomInt(0, MAP_ROWS - 1);
 
         if (map.tileMap[{possibleCol, possibleRow}].state != TileState::Grass) {
             continue;
@@ -35,8 +34,8 @@ void EntityHandler::generateEntities(Map &map)
 
         if (alreadyOccupied) {continue;}
 
-        int possibleX = (possibleCol * tileSize) + GeneralUtils::getRandomInt(-tileSize / 3, tileSize / 3) + tileSize;
-        int possibleY = (possibleRow * tileSize) + GeneralUtils::getRandomInt(-tileSize / 3, tileSize / 3) + tileSize;
+        int possibleX = (possibleCol * tileSize) + MathUtils::getRandomInt(-tileSize / 3, tileSize / 3) + tileSize;
+        int possibleY = (possibleRow * tileSize) + MathUtils::getRandomInt(-tileSize / 3, tileSize / 3) + tileSize;
 
         if (MapUtils::getTileAtWorldCoords(map, {possibleX, possibleY}).state == TileState::Grass) {
             std::unique_ptr<Tree> thisTree = std::make_unique<Tree>(possibleX - tileSize, possibleY- tileSize); 
@@ -51,8 +50,8 @@ void EntityHandler::generateEntities(Map &map)
     int rockCount = 0;
     while (rockCount < ROCK_MAX) 
     {
-        int possibleCol = GeneralUtils::getRandomInt(0, MAP_COLUMNS - 1);
-        int possibleRow = GeneralUtils::getRandomInt(0, MAP_ROWS - 1);
+        int possibleCol = MathUtils::getRandomInt(0, MAP_COLUMNS - 1);
+        int possibleRow = MathUtils::getRandomInt(0, MAP_ROWS - 1);
 
         if (map.tileMap[{possibleCol, possibleRow}].state != TileState::Grass) {
             continue;
@@ -118,8 +117,7 @@ void EntityHandler::checkForInteractableEntity()
 
         int deltaX = entity->centerPoint.x - player->centerPoint.x;
         int deltaY = entity->centerPoint.y - player->centerPoint.y;
-        float angleRadians = atan2(deltaY, deltaX);
-        float angleDegrees = angleRadians * (180 / 3.1415926f);
+        float angle = MathUtils::findAngleinDegrees(deltaX, deltaY);
 
         if (!((deltaX < NDT && deltaX > -NDT) && (deltaY < NDT && deltaY > -NDT))) {
             continue;
@@ -128,27 +126,36 @@ void EntityHandler::checkForInteractableEntity()
         switch(player->isFacing)
         {
             case Facing::North:
-                if (angleDegrees < -45 && angleDegrees > -135) {
+                if (angle < -45 && angle > -135) {
                     player->interactableEntity = entity;
                 }
                 break;
             case Facing::East:
-                if (angleDegrees > -45 && angleDegrees < 45) {
+                if (angle > -45 && angle < 45) {
                     player->interactableEntity = entity;
                 }
                 break;
             case Facing::South:
-                if (angleDegrees > 45 && angleDegrees < 135) {
+                if (angle > 45 && angle < 135) {
                     player->interactableEntity = entity;
                 }
                 break;
             case Facing::West:
-                if (angleDegrees > 135 || angleDegrees < -135) {
+                if (angle > 135 || angle < -135) {
                     player->interactableEntity = entity;
                 }
         }
         break;
     }
+}
+
+bool EntityHandler::entityShouldRender(Map& map, int screenX, int screenY)
+{
+    if (screenX > GetScreenWidth()) {return false;}
+    if (screenX < 0 - tileSize) {return false;}
+    if (screenY > GetScreenHeight()) {return false;}
+    if (screenY < 0 - tileSize) {return false;}
+    return true;
 }
 
 void EntityHandler::events(Map &map)
@@ -170,7 +177,7 @@ void EntityHandler::update(Map &map)
     for (const auto& tree : trees)
     {
         tree->update(map);
-        if (Utilities::entityShouldRender(map, tree->screenX, tree->screenY)) {
+        if (entityShouldRender(map, tree->screenX, tree->screenY)) {
             visibleEntities.push_back(std::move(tree.get()));
         }
     }
@@ -178,7 +185,7 @@ void EntityHandler::update(Map &map)
     for (const auto& rock : rocks)
     {
         rock->update(map);
-        if (Utilities::entityShouldRender(map, rock->screenX, rock->screenY)) {
+        if (entityShouldRender(map, rock->screenX, rock->screenY)) {
             visibleEntities.push_back(std::move(rock.get()));
         }
     }
@@ -199,7 +206,7 @@ void EntityHandler::draw(Map &map, Assets &assets)
 
     if (SHOW_DEBUG_MENU) {
         DrawRectangle(10, 10, 100, 90, {0, 0, 0, 120});
-        Utilities::drawFramerate();
+        DebugTools::drawFramerate();
         player->DEBUG_drawWorldCoords();
         player->DEBUG_drawCurrentTile(map);
     }

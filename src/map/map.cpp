@@ -1,6 +1,6 @@
 #include "map.h"
 #include "utils_map.h"
-#include "../utils/utils_general.h"
+#include "../utils/math_utils.h"
 #include "../game/game.h"
 #include <vector>
 #include <iostream>
@@ -20,6 +20,7 @@ Map::Map()
 void Map::generate() // Generates the tilemap
 {
     // Initializes the tilemap by populating it with tiles
+    std::vector<TileCoords> grassTiles;
     std::cout << "TINY_ISLAND: Initializing map...\n";
     for (int col = 0; col < cols; col++) 
     {
@@ -27,6 +28,7 @@ void Map::generate() // Generates the tilemap
         {
             if ((col == cols / 2) && (row == rows / 2)) {
                 tileMap[{col, row}] = {TileState::Grass, 1};
+                grassTiles.push_back({col, row});
             }
             else {
                 tileMap[{col, row}] = {TileState::Water, 0};
@@ -34,48 +36,42 @@ void Map::generate() // Generates the tilemap
         }
     }
 
-
     //Generates the island randomly from the center land tile
     std::cout << "TINY_ISLAND: Generating island...\n";
     int landCount = 1;
     int landSize = size * LAND_PERCENTAGE;
     while (landCount < landSize) 
     {
-        for (int col = 0; col < cols; col++) 
+        for (const TileCoords coords : grassTiles)
         {
-            for (int row = 0; row < rows; row++) 
-            {
-                if (tileMap[{col, row}].state != TileState::Grass) {
-                    continue;
-                }
+            if (MapUtils::tileWithinNthPerimeter(*this, {coords.col, coords.row}, 6)) {
+                continue;
+            }   
 
-                if (MapUtils::tileWithinNthPerimeter(*this, {col, row}, 6)) {
-                    continue;
-                }
-
-                TileCoords nextNeighborCoords = MapUtils::getRandomOrthogonalNeighborCoords({col, row});
-
-                if (tileMap[nextNeighborCoords].state == TileState::Grass) {
-                    continue;
-                }
-
-                tileMap[nextNeighborCoords].state = TileState::Grass;
-                landCount++;
+            TileCoords nextNeighborCoords = MapUtils::getRandomOrthogonalNeighborCoords({coords.col, coords.row});
+            if (tileMap[nextNeighborCoords].state == TileState::Grass) {
+                continue;
             }
+
+            tileMap[nextNeighborCoords].state = TileState::Grass;
+            grassTiles.push_back(nextNeighborCoords);
+            landCount++;
         }
     }
 
     //Places lake seeds throughout the generated island
+    std::vector<TileCoords> lakeTiles;
     std::cout << "TINY_ISLAND: Initializing lakes...\n";
     int lakeCount = 0;
     while (lakeCount < NUM_OF_LAKES)
     {
-        int possibleCol = GeneralUtils::getRandomInt(0, cols - 1);
-        int possibleRow = GeneralUtils::getRandomInt(0, rows - 1);
+        int possibleCol = MathUtils::getRandomInt(0, cols - 1);
+        int possibleRow = MathUtils::getRandomInt(0, rows - 1);
         
         if (tileMap[{possibleCol, possibleRow}].state == TileState::Grass)
         {
             tileMap[{possibleCol, possibleRow}].state = TileState::Lake;
+            lakeTiles.push_back({possibleCol, possibleRow});
             lakeCount++;
         }
     }
@@ -85,23 +81,15 @@ void Map::generate() // Generates the tilemap
     int lakeMax = landCount * LAKE_PERCENTAGE;
     while (lakeCount < lakeMax)
     {
-        for (int col = 0; col < cols; col++)
+        for (const TileCoords coords : lakeTiles)
         {
-            for (int row = 0; row < rows; row++)
-            {
-                if (tileMap[{col, row}].state != TileState::Lake) {
-                    continue;
-                }
-
-                TileCoords nextNeighborCoords = MapUtils::getRandomOrthogonalNeighborCoords({col, row});
-                
-                if (tileMap[nextNeighborCoords].state == TileState::Lake || tileMap[nextNeighborCoords].state == TileState::Water) {
-                    continue;
-                }
-
-                tileMap[nextNeighborCoords].state = TileState::Lake;
-                lakeCount++;
+            TileCoords nextNeighborCoords = MapUtils::getRandomOrthogonalNeighborCoords({coords.col, coords.row});
+            if (tileMap[nextNeighborCoords].state != TileState::Grass) {
+                continue;
             }
+            tileMap[nextNeighborCoords].state = TileState::Lake;
+            lakeTiles.push_back(nextNeighborCoords);
+            lakeCount++;
         }
     }
 
@@ -121,7 +109,7 @@ void Map::generate() // Generates the tilemap
                 continue;
             }
 
-            tileMap[{col, row}].elevation = GeneralUtils::getRandomInt(2, 7);
+            tileMap[{col, row}].elevation = MathUtils::getRandomInt(2, 7);
         }
     }
 
@@ -131,8 +119,8 @@ void Map::generate() // Generates the tilemap
     std::vector<TileCoords> riverSeedCoords;
     while (riverCount < NUM_OF_RIVERS)
     {
-        int possibleCol = GeneralUtils::getRandomInt(0, cols - 1);
-        int possibleRow = GeneralUtils::getRandomInt(0, cols - 1);
+        int possibleCol = MathUtils::getRandomInt(0, cols - 1);
+        int possibleRow = MathUtils::getRandomInt(0, cols - 1);
 
         if (tileMap[{possibleCol, possibleRow}].state != TileState::Grass) {
             continue;
@@ -167,7 +155,7 @@ void Map::generate() // Generates the tilemap
                 tileMap[neighborCoords[3]].elevation
             };
 
-            currentElevation = GeneralUtils::findLowestInt(neighborElevations, 4);
+            currentElevation = MathUtils::findLowestInt(neighborElevations, 4);
 
             for (int i = 0; i < 4; i++)
             {
@@ -228,11 +216,10 @@ void Map::generate() // Generates the tilemap
             if (MapUtils::neighborsOfType(*this, {col, row}, TileState::Water) > 0) {
                 tileMap[{col, row}].state = TileState::Sand;
             }
-
         }
     }
 
-    std::cout << "TINY_ISLAND: Map generated!\n";
+    std::cout << "TINY_ISLAND: Map generation took " << GetTime() << " seconds!\n";
     MapUtils::centerCameraOnTile(*this, MapUtils::selectLandingTile(*this));
 }
 

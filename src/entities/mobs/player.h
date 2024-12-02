@@ -3,6 +3,7 @@
 #include "mob.h"
 #include "../../settings.h"
 #include "../../map/map.h"
+#include "../../items/item.h"
 #include <raylib.h>
 
 class Player : public Mob {

@@ -1,6 +1,8 @@
 #pragma once
-#include <raylib.h>
+
 #include "../settings.h"
+
+#include <raylib.h>
 
 class Hud {
     private:

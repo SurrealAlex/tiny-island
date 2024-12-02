@@ -1,9 +1,12 @@
+#pragma once
+
 #include <vector>
 #include <memory>
 #include "mobs/player.h"
 #include "world-objects/tree.h"
 #include "world-objects/rock.h"
 #include "../gui/minimap.h"
+#include "../utils/debug.h"
 
 class EntityHandler {
     private:
@@ -18,6 +21,7 @@ class EntityHandler {
         void generateEntities(Map& map);
         void checkEntityCollisions();
         void checkForInteractableEntity();
+        bool entityShouldRender(Map& map, int screenX, int screenY);
 
         void events(Map& map);
         void update(Map& map);

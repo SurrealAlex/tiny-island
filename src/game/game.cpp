@@ -7,7 +7,6 @@
 #include "../gui/minimap.h"
 #include "../gui/hud.h"
 #include "../gui/menu.h"
-#include "../utils/utilities.h"
 #include <iostream>
 #include <raylib.h>
 

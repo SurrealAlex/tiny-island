@@ -1,11 +1,14 @@
 #pragma once
+
+#include "../settings.h"
+
 #include <raylib.h>
 #include <string>
 #include <map>
 
 /*
-- Raw image files are prefixed with an UNDERSCORE "_grassTile"
-- Textures loaded from raw images are not prefixed
+*** Raw image files are prefixed with an underscore - "_grassTile"
+*** Textures loaded from raw images are not prefixed - "grassTile"
 */
 
 class Assets {

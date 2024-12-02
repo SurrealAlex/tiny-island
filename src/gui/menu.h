@@ -1,3 +1,4 @@
+#pragma once
 #include <raylib.h>
 
 class Menu {
@@ -10,5 +11,4 @@ class Menu {
         void events();
         void update();
         void draw();
-
 };

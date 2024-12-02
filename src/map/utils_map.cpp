@@ -1,4 +1,4 @@
-#include "../utils/utils_general.h"
+#include "../utils/math_utils.h"
 #include "utils_map.h"
 #include <iostream>
 
@@ -49,19 +49,21 @@ TileCoords MapUtils::getNeighborCoords(TileCoords coords, Direction direction)
 
 TileCoords MapUtils::getRandomOrthogonalNeighborCoords(TileCoords coords)
 {
-    int rand = GeneralUtils::getRandomInt(1, 6);
-    
-    if (rand < 3) {
-        return getNeighborCoords(coords, Direction::North);
-    }
-    if (rand < 5) {
-        return getNeighborCoords(coords, Direction::West);
-    }
-    if (rand == 5) {
-        return getNeighborCoords(coords, Direction::South);
-    }
-    else {
-        return getNeighborCoords(coords, Direction::East);
+    int rand = MathUtils::getRandomInt(1, 4);
+    switch(rand)
+    {
+        case 1:
+            return getNeighborCoords(coords, Direction::North);
+            break;
+        case 2:
+            return getNeighborCoords(coords, Direction::East);
+            break;
+        case 3:
+            return getNeighborCoords(coords, Direction::South);
+            break;
+        default:
+            return getNeighborCoords(coords, Direction::West);
+            break;
     }
 }
 
@@ -110,7 +112,7 @@ TileCoords MapUtils::selectLandingTile(Map &map)
             {
                 if (map.tileMap[{col, row}].state != TileState::Sand) {continue;}
                 if (neighborsOfType(map, {col, row}, TileState::Grass) < 3) {continue;}
-                if (GeneralUtils::getRandomInt(1, map.size) != map.size) {continue;}
+                if (MathUtils::getRandomInt(1, map.size) != map.size) {continue;}
                 return {col, row};
             }
         }
