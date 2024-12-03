@@ -6,7 +6,7 @@
 #include "../entities/entity_handler.h"
 #include "../gui/minimap.h"
 #include "../gui/hud.h"
-#include "../gui/menu.h"
+#include "../gui/inventory_menu.h"
 #include <iostream>
 #include <raylib.h>
 
@@ -29,6 +29,7 @@ void Game::run()
     Map map;
     EntityHandler entities;
     Hud headsUpDisplay;
+    InventoryMenu invMenu(entities.player->inventory);
 
     //Init game
     map.generate();
@@ -42,11 +43,13 @@ void Game::run()
             //Listen for events
             entities.events(map);
             headsUpDisplay.events();
+            invMenu.events();
 
             //Update objects
             map.update();
             entities.update(map);
             headsUpDisplay.update();
+            invMenu.update();
 
             //Render
             BeginDrawing();
@@ -54,6 +57,7 @@ void Game::run()
                 map.draw(assets);
                 entities.draw(map, assets);
                 headsUpDisplay.draw();
+                invMenu.draw(assets);
             EndDrawing();
         }
     }

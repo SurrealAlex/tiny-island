@@ -7,7 +7,6 @@
 #include "../entities/entity_handler.h"
 #include "../gui/minimap.h"
 #include "../gui/hud.h"
-#include "../gui/menu.h"
 
 #include <iostream>
 #include <raylib.h>

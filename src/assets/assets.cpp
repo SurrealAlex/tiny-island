@@ -82,7 +82,7 @@ Assets::Assets()
     _stickItem = LoadImage("res/sprites/items/stick.png");
     ImageResizeNN(&_stickItem, tileSize / 4, tileSize / 4);
     stickItem = LoadTextureFromImage(_stickItem);
-    assetList["stickItem"] = &stickItem;
+    assetList["Stick"] = &stickItem;
 
 
     //Cleanup memory

@@ -22,6 +22,7 @@
                     "OBJS+=src/entities/mobs/*.cpp",
                     "OBJS+=src/entities/world-objects/*.cpp",
                     "OBJS+=src/entities/item/*.cpp",
+                    "OBJS+=src/inventory/*.cpp",
                     "OBJS+=src/game/*.cpp",
                     "OBJS+=src/gui/*.cpp",
                     "OBJS+=src/map/*.cpp",

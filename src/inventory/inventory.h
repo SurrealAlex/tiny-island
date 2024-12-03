@@ -1,3 +1,5 @@
+#pragma once
+
 #include <string>
 #include <map>
 
@@ -8,8 +10,6 @@ enum class ToolType {Spade, Chisel, Axe, Pick};
 
 struct InventoryItem {
     std::string name;
-    std::string description;
-    int id;
     int quantity;
 };
 
@@ -22,4 +22,13 @@ struct Tool : Craftable {
     ToolType type;
     int maxDurability;
     int nowDurability;
+};
+
+class Inventory {
+    public:
+        InventoryItem storageSlots[INVENTORY_SIZE];
+        Tool equipSlots[4];
+        void addItem(std::string name, int howMany);
+        bool isFull();
+        bool isEmpty();
 };

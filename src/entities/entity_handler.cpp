@@ -181,6 +181,13 @@ void EntityHandler::checkItemPickups()
             continue;
         }
 
+        if (player->inventory.isFull()) {
+            continue;
+        }
+
+        player->inventory.addItem({entity->name, 0}, 1);
+        std::cout << "You now have " << player->inventory.storageSlots[0].quantity << " " << player->inventory.storageSlots[0].name << std::endl;
+
         it = visibleEntities.erase(it);
         for (auto itemIt = items.begin(); itemIt != items.end(); ++itemIt) {
             if (itemIt->get() == entity) {

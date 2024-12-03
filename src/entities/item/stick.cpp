@@ -36,7 +36,7 @@ void Stick::update(Map& map) {
 }
 
 void Stick::draw(Map& map, Assets& assets) {
-    DrawTexture(*assets.get("stickItem"), screenX, screenY, WHITE);
+    DrawTexture(*assets.get("Stick"), screenX, screenY, WHITE);
 
     if (SHOW_CENTER_POINTS) {
         DrawCircle(centerPoint.x, centerPoint.y, 10.0f, YELLOW);
