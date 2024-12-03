@@ -158,10 +158,37 @@ void EntityHandler::checkInteractions()
         if (MathUtils::getRandomInt(1, tree->stickDropChance) != tree->stickDropChance) {
             return;
         }
-        tree->stickDropChance++;
+        tree->stickDropChance = tree->stickDropChance * 2;
+        if (tree->stickDropChance >= 64) {
+            tree->stickDropChance = 2;
+        }
         int spawnOffsetX = MathUtils::getRandomInt((TILE_SCALE * 4), tileSize - (TILE_SCALE * 4));
         std::unique_ptr<Stick> newStick = std::make_unique<Stick>(tree->worldX + spawnOffsetX, tree->worldY + 20);
-        sticks.push_back(std::move(newStick));
+        items.push_back(std::move(newStick));
+    }
+}
+
+void EntityHandler::checkItemPickups()
+{
+    for (auto it = visibleEntities.begin(); it != visibleEntities.end(); it++) {
+        Entity* entity = *it;
+
+        if (!dynamic_cast<Item*>(entity)) {
+            continue;
+        }
+
+        if (!CheckCollisionCircleRec({entity->centerPoint.x, entity->centerPoint.y}, 10.0f, player->hitBox)) {
+            continue;
+        }
+
+        it = visibleEntities.erase(it);
+        for (auto itemIt = items.begin(); itemIt != items.end(); ++itemIt) {
+            if (itemIt->get() == entity) {
+                items.erase(itemIt);
+                break;
+            }
+        }
+        break;
     }
 }
 
@@ -178,6 +205,7 @@ void EntityHandler::events(Map &map)
 {
     minimap.events();
     checkEntityCollisions();
+    checkItemPickups();
 
     for (const auto& entity : visibleEntities) {
         entity->events(map);
@@ -206,11 +234,11 @@ void EntityHandler::update(Map &map)
         }
     }
 
-    for (const auto& stick : sticks)
+    for (const auto& item : items)
     {
-        stick->update(map);
-        if (entityShouldRender(map, stick->screenX, stick->screenY)) {
-            visibleEntities.push_back(std::move(stick.get()));
+        item->update(map);
+        if (entityShouldRender(map, item->screenX, item->screenY)) {
+            visibleEntities.push_back(std::move(item.get()));
         }
     }
 

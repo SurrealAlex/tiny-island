@@ -31,7 +31,7 @@ void Stick::update(Map& map) {
 
     screenX = worldX + map.getOffsetX();
     screenY = worldY + map.getOffsetY();
-    zIndex = worldY - (tileSize * 2);
+    zIndex = screenY - (tileSize / 2);
     centerPoint = {screenX + (width / 2), screenY + (height / 2)};
 }
 

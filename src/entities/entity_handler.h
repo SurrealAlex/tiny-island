@@ -15,7 +15,7 @@ class EntityHandler {
         std::unique_ptr<Player> player = std::make_unique<Player>();
         std::vector<std::unique_ptr<Tree>> trees;
         std::vector<std::unique_ptr<Rock>> rocks;
-        std::vector<std::unique_ptr<Stick>> sticks;
+        std::vector<std::unique_ptr<Item>> items;
         std::vector<Entity*> visibleEntities;
 
         Minimap minimap;
@@ -25,6 +25,7 @@ class EntityHandler {
         void checkEntityCollisions();
         void checkForInteractableEntity();
         void checkInteractions();
+        void checkItemPickups();
         bool entityShouldRender(Map& map, int screenX, int screenY);
 
         void events(Map& map);
