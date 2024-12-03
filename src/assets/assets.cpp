@@ -78,6 +78,12 @@ Assets::Assets()
     rockSprite = LoadTextureFromImage(_rockSprite);
     assetList["rockSprite"] = &rockSprite;
 
+    //Items
+    _stickItem = LoadImage("res/sprites/items/stick.png");
+    ImageResizeNN(&_stickItem, tileSize / 4, tileSize / 4);
+    stickItem = LoadTextureFromImage(_stickItem);
+    assetList["stickItem"] = &stickItem;
+
 
     //Cleanup memory
     unloadImages();
@@ -102,6 +108,7 @@ void Assets::unloadImages()
     UnloadImage(_rWalk2);
     UnloadImage(_treeSprite);
     UnloadImage(_rockSprite);
+    UnloadImage(_stickItem);
 }
 
 void Assets::unloadTextures()
@@ -123,6 +130,7 @@ void Assets::unloadTextures()
     UnloadTexture(rWalk2);
     UnloadTexture(treeSprite);
     UnloadTexture(rockSprite);
+    UnloadTexture(stickItem);
 }
 
 Texture2D* Assets::get(std::string assetName)

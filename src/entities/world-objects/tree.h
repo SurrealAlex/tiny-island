@@ -12,6 +12,8 @@ class Tree : public Entity {
         int shakeOffset;
     public:
         bool isBeingShaked;
+        bool generatingStick;
+        int stickDropChance;
         Tree(int wrldX, int wrldY);
 
         void events(Map& map) override;

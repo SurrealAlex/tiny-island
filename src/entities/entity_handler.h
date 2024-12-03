@@ -7,12 +7,15 @@
 #include "world-objects/rock.h"
 #include "../gui/minimap.h"
 #include "../utils/debug.h"
+#include "item/item.h"
+#include "item/stick.h"
 
 class EntityHandler {
     private:
         std::unique_ptr<Player> player = std::make_unique<Player>();
         std::vector<std::unique_ptr<Tree>> trees;
         std::vector<std::unique_ptr<Rock>> rocks;
+        std::vector<std::unique_ptr<Stick>> sticks;
         std::vector<Entity*> visibleEntities;
 
         Minimap minimap;
@@ -21,6 +24,7 @@ class EntityHandler {
         void generateEntities(Map& map);
         void checkEntityCollisions();
         void checkForInteractableEntity();
+        void checkInteractions();
         bool entityShouldRender(Map& map, int screenX, int screenY);
 
         void events(Map& map);

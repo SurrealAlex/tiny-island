@@ -37,9 +37,10 @@ constexpr int TREE_MAX = 800; //Number of trees to generate
 constexpr int ROCK_CHANCE = 25; //Chacne a rock will spawn at any given tile, expressed as odds ("1 in _")
 constexpr int ROCK_MAX = 240; // Number of rocks to generate
 
-constexpr int COW_MAX = 100; //Number of cows in the world
-
 /* --- PLAYER  --- */
 constexpr int WALK_SPEED = 5; //Base player walking speed
 constexpr int SPRINT_SPEED = 8; //Base player sprinting speed
 constexpr int NDT = (tileSize / 3); //"Nearby Distance Threshold" - Minimum distance required between player and entity for player to interact with it
+
+/* --- INVENTORY --- */
+constexpr int INVENTORY_SIZE = 36; //Number of inventory storage slots

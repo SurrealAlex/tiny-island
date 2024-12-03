@@ -29,9 +29,9 @@ class Assets {
         Image _rockSprite;
         Texture2D rockSprite;
 
-        //Animal assets
-        Image _cowIdle, _cowWalk1, _cowWalk2;
-        Texture2D cowIdle, cowWalk1, cowWalk2;
+        //Item assets
+        Image _stickItem;
+        Texture2D stickItem;
 
         //Asset map
         std::map<std::string, Texture2D*> assetList;

@@ -10,6 +10,8 @@ Tree::Tree(int wrldX, int wrldY)
     shakeAnimationCounter = 0;
     shakeCounter = 0;
     shakeOffset = 0;
+    generatingStick = false;
+    stickDropChance = 2;
 
     name = "Tree";
     worldX = wrldX;

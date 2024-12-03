@@ -2,6 +2,7 @@
 #include "../utils/math_utils.h"
 #include "../map/utils_map.h"
 #include "../map/map.h"
+#include "item/stick.h"
 #include <iostream>
 #include <algorithm>
 #include <math.h>
@@ -76,7 +77,6 @@ void EntityHandler::generateEntities(Map &map)
 
 }
 
-
 void EntityHandler::checkEntityCollisions()
 {
     for (const auto& entity : visibleEntities) 
@@ -149,6 +149,22 @@ void EntityHandler::checkForInteractableEntity()
     }
 }
 
+void EntityHandler::checkInteractions()
+{
+    if (Tree* tree = dynamic_cast<Tree*>(player->interactableEntity)) {
+        if (!tree->isBeingShaked) {
+            return;
+        }
+        if (MathUtils::getRandomInt(1, tree->stickDropChance) != tree->stickDropChance) {
+            return;
+        }
+        tree->stickDropChance++;
+        int spawnOffsetX = MathUtils::getRandomInt((TILE_SCALE * 4), tileSize - (TILE_SCALE * 4));
+        std::unique_ptr<Stick> newStick = std::make_unique<Stick>(tree->worldX + spawnOffsetX, tree->worldY + 20);
+        sticks.push_back(std::move(newStick));
+    }
+}
+
 bool EntityHandler::entityShouldRender(Map& map, int screenX, int screenY)
 {
     if (screenX > GetScreenWidth()) {return false;}
@@ -190,7 +206,19 @@ void EntityHandler::update(Map &map)
         }
     }
 
+    for (const auto& stick : sticks)
+    {
+        stick->update(map);
+        if (entityShouldRender(map, stick->screenX, stick->screenY)) {
+            visibleEntities.push_back(std::move(stick.get()));
+        }
+    }
+
     checkForInteractableEntity();
+    if (IsKeyPressed(KEY_SPACE) && player->interactableEntity != nullptr) {
+        checkInteractions();
+    }
+
     player->update(map);
 
     std::sort(visibleEntities.begin(), visibleEntities.end(), [](const Entity* a, Entity* b) {

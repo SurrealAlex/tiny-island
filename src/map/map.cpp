@@ -42,13 +42,13 @@ void Map::generate() // Generates the tilemap
     int landSize = size * LAND_PERCENTAGE;
     while (landCount < landSize) 
     {
-        for (const TileCoords coords : grassTiles)
+        for (TileCoords coords : grassTiles)
         {
-            if (MapUtils::tileWithinNthPerimeter(*this, {coords.col, coords.row}, 6)) {
+            if (MapUtils::tileWithinNthPerimeter(*this, coords, 6)) {
                 continue;
             }   
 
-            TileCoords nextNeighborCoords = MapUtils::getRandomOrthogonalNeighborCoords({coords.col, coords.row});
+            TileCoords nextNeighborCoords = MapUtils::getRandomOrthogonalNeighborCoords(coords);
             if (tileMap[nextNeighborCoords].state == TileState::Grass) {
                 continue;
             }
@@ -252,7 +252,6 @@ void Map::adjustOffsetY(int y)
 {
     offsetY += y;
 }
-
 
 void Map::update()
 {
