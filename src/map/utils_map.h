@@ -1,5 +1,6 @@
 #pragma once
 #include <utility>
+#include <vector>
 #include "map.h"
 
 class MapUtils {
@@ -12,6 +13,7 @@ class MapUtils {
 
         static TileCoords getTileCoordsAtWorldCoords(Map& map, WorldCoords coords);
         static Tile getTileAtWorldCoords(Map& map, WorldCoords coords);
+        static std::vector<Direction> getDirectionToTileState(Map& map, TileCoords currentCoords, TileState stateToFind);
 
         static TileCoords selectLandingTile(Map& map);
         static void centerCameraOnTile(Map& map, TileCoords coords);

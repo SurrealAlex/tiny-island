@@ -194,11 +194,10 @@ void Map::generate() // Generates the tilemap
                     tileMap[{col, row}].state = TileState::Water;
                 }
                 
-                if (tileMap[{col, row}].state == TileState::Water && MapUtils::neighborsOfType(*this, {col, row}, TileState::Grass) > 6)
+                if (tileMap[{col, row}].state == TileState::Water && MapUtils::neighborsOfType(*this, {col, row}, TileState::Grass) > 5)
                 {
                     tileMap[{col, row}].state = TileState::Grass;
                 }
-                
             }
         }
     }

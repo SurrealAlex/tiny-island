@@ -6,7 +6,9 @@ class Item : public Entity {
     public:
         bool isRested;
         int spawnAnimationCounter;
-        float fallRate;
+        float speed;
+        float timeSpawned;
+        float timeAlive;
 
         virtual ~Item() = default;
         virtual void events(Map& map) = 0;

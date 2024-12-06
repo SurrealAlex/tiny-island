@@ -29,9 +29,9 @@ void InventoryMenu::draw(Assets& assets)
     float y = 0 + menuOffsetY;
     int slotIndex = 0;
     
-    for (int col = 0; col < inventoryCols; col++)
+    for (int row = 0; row < inventoryRows; row++)
     {
-        for (int row = 0; row < inventoryRows; row++)
+        for (int col = 0; col < inventoryCols; col++)
         {
             Rectangle thisSquare = {x, y, squareSize, squareSize};
             bool isHovering = CheckCollisionPointRec({(float)GetMouseX(), (float)GetMouseY()}, thisSquare);
@@ -48,10 +48,10 @@ void InventoryMenu::draw(Assets& assets)
                 DrawText(c_quantityStr, (thisSquare.x + squareSize - 30), (thisSquare.y + squareSize - 30), 24, WHITE);
             }
 
-            y += squareSize + squareGap;
+            x += squareSize + squareGap;
             slotIndex++;
         }
-    y = 0 + menuOffsetY;
-    x += squareSize + squareGap;
+    x = 0 + menuOffsetX;
+    y += squareSize + squareGap;
     }
 }

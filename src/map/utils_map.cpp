@@ -41,7 +41,6 @@ TileCoords MapUtils::getNeighborCoords(TileCoords coords, Direction direction)
             return {coords.col - 1, coords.row};
             break;
         default:
-            std::cout << "TINY_ISLAND: Error in retrieving tile neighbor coords. Returned original coords.\n";
             return {coords.col, coords.row};
             break;
     }
@@ -100,6 +99,19 @@ Tile MapUtils::getTileAtWorldCoords(Map& map, WorldCoords coords)
 {
     TileCoords tileCoords = getTileCoordsAtWorldCoords(map, coords);
     return map.tileMap[tileCoords];
+}
+
+std::vector<Direction> MapUtils::getDirectionToTileState(Map &map, TileCoords currentCoords, TileState stateToFind)
+{
+    Direction directions[4] = {Direction::North, Direction::East, Direction::South, Direction::West};
+    std::vector<Direction> possibleDirections;
+    for (Direction direction : directions)
+    {
+        if (map.tileMap[getNeighborCoords(currentCoords, direction)].state == stateToFind) {
+            possibleDirections.push_back(direction);
+        }
+    }
+    return possibleDirections;
 }
 
 TileCoords MapUtils::selectLandingTile(Map &map)

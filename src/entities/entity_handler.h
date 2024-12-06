@@ -9,6 +9,7 @@
 #include "../utils/debug.h"
 #include "item/item.h"
 #include "item/stick.h"
+#include "../gui/game-menu.h"
 
 class EntityHandler {
     private:
@@ -16,16 +17,17 @@ class EntityHandler {
         std::vector<std::unique_ptr<Rock>> rocks;
         std::vector<std::unique_ptr<Item>> items;
         std::vector<Entity*> visibleEntities;
-
         Minimap minimap;
     
     public:
         std::unique_ptr<Player> player = std::make_unique<Player>();
+        
         void generateEntities(Map& map);
         void checkEntityCollisions();
         void checkForInteractableEntity();
         void checkInteractions();
         void checkItemPickups();
+        void spawnWorm(Map& map);
         bool entityShouldRender(Map& map, int screenX, int screenY);
 
         void events(Map& map);

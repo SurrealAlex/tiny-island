@@ -3,15 +3,16 @@
 #include <raylib.h>
 #include "../../map/map.h"
 
-Tree::Tree(int wrldX, int wrldY)
+Tree::Tree(TreeType treeType, int wrldX, int wrldY)
 {
+    type = treeType;
     shakeDirection = false;
     isBeingShaked = false;
     shakeAnimationCounter = 0;
     shakeCounter = 0;
     shakeOffset = 0;
-    generatingStick = false;
-    stickDropChance = 2;
+    generatingDrop = false;
+    dropChance = 2;
 
     name = "Tree";
     worldX = wrldX;
@@ -59,7 +60,17 @@ void Tree::update(Map &map)
 
 void Tree::draw(Map& map, Assets& assets)
 {
-    DrawTexture(*assets.get("treeSprite"), screenX, screenY, WHITE);
+    switch(type)
+    {
+        case TreeType::Oak:
+            DrawTexture(*assets.get("treeSprite"), screenX, screenY, WHITE);
+            break;
+        case TreeType::Palm:
+            DrawTexture(*assets.get("palmSprite"), screenX, screenY, WHITE);
+            break;
+        default:
+            break;
+    }
 
     if (SHOW_HITBOXES) {
         DrawRectangle(hitBox.x, hitBox.y, hitBox.width, hitBox.height, RED);

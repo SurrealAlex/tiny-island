@@ -3,6 +3,8 @@
 #include "../map/utils_map.h"
 #include "../map/map.h"
 #include "item/stick.h"
+#include "item/coconut.h"
+#include "item/worm.h"
 #include <iostream>
 #include <algorithm>
 #include <math.h>
@@ -18,11 +20,7 @@ void EntityHandler::generateEntities(Map &map)
         int possibleCol = MathUtils::getRandomInt(0, MAP_COLUMNS - 1);
         int possibleRow = MathUtils::getRandomInt(0, MAP_ROWS - 1);
 
-        if (map.tileMap[{possibleCol, possibleRow}].state != TileState::Grass) {
-            continue;
-        }
-
-        if (MapUtils::neighborsOfType(map, {possibleCol, possibleRow}, TileState::Sand) > 0) {
+        if (map.tileMap[{possibleCol, possibleRow}].state == TileState::Water) {
             continue;
         }
 
@@ -35,11 +33,19 @@ void EntityHandler::generateEntities(Map &map)
 
         if (alreadyOccupied) {continue;}
 
-        int possibleX = (possibleCol * tileSize) + MathUtils::getRandomInt(-tileSize / 3, tileSize / 3) + tileSize;
-        int possibleY = (possibleRow * tileSize) + MathUtils::getRandomInt(-tileSize / 3, tileSize / 3) + tileSize;
+        TreeType newType;
+        int possibleX = (possibleCol * tileSize) + MathUtils::getRandomInt(-tileSize / 3, tileSize / 3) + (tileSize / 2);
+        int possibleY = (possibleRow * tileSize) + MathUtils::getRandomInt(-tileSize / 3, tileSize / 3) + tileSize - TILE_SCALE;
 
         if (MapUtils::getTileAtWorldCoords(map, {possibleX, possibleY}).state == TileState::Grass) {
-            std::unique_ptr<Tree> thisTree = std::make_unique<Tree>(possibleX - tileSize, possibleY- tileSize); 
+            newType = TreeType::Oak;
+        }
+        else if (MapUtils::getTileAtWorldCoords(map, {possibleX, possibleY}).state == TileState::Sand) {
+            newType = TreeType::Palm;
+        }
+
+        if (MapUtils::getTileAtWorldCoords(map, {possibleX, possibleY}).state != TileState::Water) {
+            std::unique_ptr<Tree> thisTree = std::make_unique<Tree>(newType, possibleX - (tileSize / 2), possibleY- tileSize + TILE_SCALE); 
             trees.push_back(std::move(thisTree));
             treeCount++;
             occupiedTiles.push_back({possibleCol, possibleRow});
@@ -73,6 +79,11 @@ void EntityHandler::generateEntities(Map &map)
         rockCount++;
         occupiedTiles.push_back({possibleCol, possibleRow});
         if (rockCount >= ROCK_MAX) {break;}
+    }
+
+    for (int i = 0; i < 5; i++)
+    {
+        spawnWorm(map);
     }
 
 }
@@ -155,16 +166,23 @@ void EntityHandler::checkInteractions()
         if (!tree->isBeingShaked) {
             return;
         }
-        if (MathUtils::getRandomInt(1, tree->stickDropChance) != tree->stickDropChance) {
+        if (MathUtils::getRandomInt(1, tree->dropChance) != tree->dropChance) {
             return;
         }
-        tree->stickDropChance = tree->stickDropChance * 2;
-        if (tree->stickDropChance >= 64) {
-            tree->stickDropChance = 2;
+        tree->dropChance = tree->dropChance * 2;
+        if (tree->dropChance >= 64) {
+            tree->dropChance = 2;
         }
         int spawnOffsetX = MathUtils::getRandomInt((TILE_SCALE * 4), tileSize - (TILE_SCALE * 4));
-        std::unique_ptr<Stick> newStick = std::make_unique<Stick>(tree->worldX + spawnOffsetX, tree->worldY + 20);
-        items.push_back(std::move(newStick));
+
+        if (tree->type == TreeType::Oak) {
+            std::unique_ptr<Stick> newStick = std::make_unique<Stick>(tree->worldX + spawnOffsetX, tree->worldY + 20);
+            items.push_back(std::move(newStick));
+        }
+        else {
+            std::unique_ptr<Coconut> newCoconut = std::make_unique<Coconut>(tree->worldX + spawnOffsetX, tree->worldY + 20);
+            items.push_back(std::move(newCoconut));
+        }
     }
 }
 
@@ -186,7 +204,6 @@ void EntityHandler::checkItemPickups()
         }
 
         player->inventory.addItem({entity->name, 0}, 1);
-        std::cout << "You now have " << player->inventory.storageSlots[0].quantity << " " << player->inventory.storageSlots[0].name << std::endl;
 
         it = visibleEntities.erase(it);
         for (auto itemIt = items.begin(); itemIt != items.end(); ++itemIt) {
@@ -196,6 +213,28 @@ void EntityHandler::checkItemPickups()
             }
         }
         break;
+    }
+}
+
+void EntityHandler::spawnWorm(Map& map)
+{
+    while(true) {
+        int possibleCol = MathUtils::getRandomInt(0, MAP_COLUMNS - 1);
+        int possibleRow = MathUtils::getRandomInt(0, MAP_ROWS - 1);
+
+        if (map.tileMap[{possibleCol, possibleRow}].state != TileState::Sand) {
+            continue;
+        }
+
+        int possibleX = (possibleCol * tileSize) + (tileSize / 2);
+        int possibleY = (possibleRow * tileSize) + (tileSize / 2);
+
+        if (MapUtils::getTileAtWorldCoords(map, {possibleX, possibleY}).state == TileState::Sand) {
+            std::unique_ptr<Worm> thisWorm = std::make_unique<Worm>(map, possibleX, possibleY); 
+            items.push_back(std::move(thisWorm));
+            std::cout << "Worm spawned at " << possibleX << ", " << possibleY << std::endl;
+            break;
+        }
     }
 }
 
@@ -241,8 +280,22 @@ void EntityHandler::update(Map &map)
         }
     }
 
-    for (const auto& item : items)
+    for (auto it = items.begin(); it != items.end();)
     {
+        Item* thisItem = it->get();
+        if (thisItem->timeAlive > 120) {
+            it = items.erase(it);
+        }
+        else {
+            it++;
+        }
+    }
+
+    if (MathUtils::getRandomInt(1, (60 * 60 * 2)) == 1) {
+        spawnWorm(map);
+    }
+
+    for (const auto& item : items) {
         item->update(map);
         if (entityShouldRender(map, item->screenX, item->screenY)) {
             visibleEntities.push_back(std::move(item.get()));

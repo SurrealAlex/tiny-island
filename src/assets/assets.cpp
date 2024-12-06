@@ -68,9 +68,13 @@ Assets::Assets()
 
     //Tree sprites
     _treeSprite = LoadImage("res/sprites/entity/tree.png");
+    _palmSprite = LoadImage("res/sprites/entity/palm.png");
     ImageResizeNN(&_treeSprite, tileSize, tileSize);
+    ImageResizeNN(&_palmSprite, tileSize, tileSize);
     treeSprite = LoadTextureFromImage(_treeSprite);
+    palmSprite = LoadTextureFromImage(_palmSprite);
     assetList["treeSprite"] = &treeSprite;
+    assetList["palmSprite"] = &palmSprite;
 
     //Rock sprites
     _rockSprite = LoadImage("res/sprites/entity/rock.png");
@@ -80,9 +84,21 @@ Assets::Assets()
 
     //Items
     _stickItem = LoadImage("res/sprites/items/stick.png");
+    _wormItem = LoadImage("res/sprites/items/worm.png");
+    _wormItem2 = LoadImage("res/sprites/items/worm2.png");
+    _coconutItem = LoadImage("res/sprites/items/coconut.png");
     ImageResizeNN(&_stickItem, tileSize / 4, tileSize / 4);
+    ImageResizeNN(&_wormItem, tileSize / 4, tileSize / 4);
+    ImageResizeNN(&_wormItem2, tileSize / 4, tileSize / 4);
+    ImageResizeNN(&_coconutItem, tileSize / 6, tileSize / 6);
     stickItem = LoadTextureFromImage(_stickItem);
+    wormItem = LoadTextureFromImage(_wormItem);
+    coconutItem = LoadTextureFromImage(_coconutItem);
+    wormItem2 = LoadTextureFromImage(_wormItem2);
     assetList["Stick"] = &stickItem;
+    assetList["Worm"] = &wormItem;
+    assetList["Worm2"] = &wormItem2;
+    assetList["Coconut"] = &coconutItem;
 
 
     //Cleanup memory
@@ -107,8 +123,12 @@ void Assets::unloadImages()
     UnloadImage(_rWalk1);
     UnloadImage(_rWalk2);
     UnloadImage(_treeSprite);
+    UnloadImage(_palmSprite);
     UnloadImage(_rockSprite);
     UnloadImage(_stickItem);
+    UnloadImage(_wormItem);
+    UnloadImage(_wormItem2);
+    UnloadImage(_coconutItem);
 }
 
 void Assets::unloadTextures()
@@ -129,8 +149,12 @@ void Assets::unloadTextures()
     UnloadTexture(rWalk1);
     UnloadTexture(rWalk2);
     UnloadTexture(treeSprite);
+    UnloadTexture(palmSprite);
     UnloadTexture(rockSprite);
     UnloadTexture(stickItem);
+    UnloadTexture(wormItem);
+    UnloadTexture(wormItem2);
+    UnloadTexture(coconutItem);
 }
 
 Texture2D* Assets::get(std::string assetName)

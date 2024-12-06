@@ -17,8 +17,8 @@ constexpr int screenWidth = tileSize * CAMERA_COLUMNS; //Width of screen in pixe
 constexpr int screenHeight = tileSize * CAMERA_ROWS; //Height of screen in pixels
 
 /* --- MAP GEN --- */
-constexpr int MAP_COLUMNS = 121; //Total number of tile columns in the map
-constexpr int MAP_ROWS = 121; //Total number of tile rows in the map
+constexpr int MAP_COLUMNS = 99; //Total number of tile columns in the map
+constexpr int MAP_ROWS = 99; //Total number of tile rows in the map
 constexpr float LAND_PERCENTAGE = 0.57f; //Percentage of the map to be occupied by land, represented as a decimal
 constexpr int NUM_OF_LAKES = 10; //Number of lake seeds to generate
 constexpr float LAKE_PERCENTAGE = 0.37f; //Percentage of the map to be occupied by lakes, represented as a decimal

@@ -1,8 +1,8 @@
-#include "stick.h"
+#include "coconut.h"
 
-Stick::Stick(int wrldX, int wrldY)
+Coconut::Coconut(int wrldX, int wrldY)
 {
-    name = "Stick";
+    name = "Coconut";
     timeSpawned = GetTime();
     width = tileSize / 4;
     height = tileSize / 4;
@@ -17,11 +17,13 @@ Stick::Stick(int wrldX, int wrldY)
     speed = 6.0f;
 }
 
-void Stick::events(Map& map) {
+void Coconut::events(Map &map)
+{
     return;
 }
 
-void Stick::update(Map& map) {
+void Coconut::update(Map &map)
+{
     timeAlive = GetTime() - timeSpawned;
     if (!isRested) {
         worldY += speed;
@@ -37,8 +39,9 @@ void Stick::update(Map& map) {
     centerPoint = {screenX + (width / 2), screenY + (height / 2)};
 }
 
-void Stick::draw(Map& map, Assets& assets) {
-    DrawTexture(*assets.get("Stick"), screenX, screenY, WHITE);
+void Coconut::draw(Map &map, Assets &assets)
+{
+    DrawTexture(*assets.get("Coconut"), screenX, screenY, WHITE);
 
     if (SHOW_CENTER_POINTS) {
         DrawCircle(centerPoint.x, centerPoint.y, 10.0f, YELLOW);

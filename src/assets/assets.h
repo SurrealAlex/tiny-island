@@ -22,16 +22,16 @@ class Assets {
         Texture2D uIdle, uWalk1, uWalk2, rIdle, rWalk1, rWalk2, dIdle, dWalk1, dWalk2, lIdle, lWalk1, lWalk2;
 
         //Tree assets
-        Image _treeSprite;
-        Texture2D treeSprite;
+        Image _treeSprite, _palmSprite;
+        Texture2D treeSprite, palmSprite;
 
         //Rock assets
         Image _rockSprite;
         Texture2D rockSprite;
 
         //Item assets
-        Image _stickItem;
-        Texture2D stickItem;
+        Image _stickItem, _wormItem, _wormItem2, _coconutItem;
+        Texture2D stickItem, wormItem, wormItem2, coconutItem;
 
         //Asset map
         std::map<std::string, Texture2D*> assetList;
